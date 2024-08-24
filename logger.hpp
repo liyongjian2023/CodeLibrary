@@ -1,3 +1,7 @@
+/*
+ * Function: General log header file for cpp 
+ * Usage: include this file, LOG(INFO) << "Debug message.";
+ */
 #ifndef _LOGGER_HPP_
 #define _LOGGER_HPP_
 
