@@ -6,4 +6,4 @@
 - logger.py: general log lib for Python.
 - words_cloud.py: generate Word Cloud.
 - CoRL_2024.py: collect CoRL2024 papers.
-- parser_pkl.py: parser pkl files.
+- parse_pkl.py: parse pkl files.

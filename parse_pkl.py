@@ -375,16 +375,53 @@ class PKLVisualizer(QMainWindow):
                 if isinstance(value, (list, tuple, set)):
                     display_value = f"{value_type}"
                 else:
-                    # display_value = f"{value_type} object"
                     display_value = f"{value_type}"
             except:
-                # display_value = f"{value_type} object"
                 display_value = f"{value_type}"
         else:
-            # display_value = f"{value_type} object"
             display_value = f"{value_type}"
 
         return display_value, value_type, shape_info
+
+    def is_expandable(self, value):
+        """Determine whether a value should be considered expandable in the tree.
+
+        Rules:
+        - dict is always expandable
+        - sequences (list/tuple/set) are expandable only if they contain at least
+          one non-primitive element (dict, nested sequence, numpy array-like, etc.)
+        - simple lists of scalars (e.g. [1,2,3,4]) are NOT expandable
+        """
+        # dicts are expandable
+        if isinstance(value, dict):
+            return True
+
+        # sequences: check their elements
+        if isinstance(value, (list, tuple, set)):
+            try:
+                # empty sequences: nothing to expand
+                if len(value) == 0:
+                    return False
+
+                for x in value:
+                    # nested container -> expandable
+                    if isinstance(x, (dict, list, tuple, set)):
+                        return True
+
+                    # numpy arrays or array-like with shape -> expandable
+                    if hasattr(x, 'shape'):
+                        return True
+
+                    # non-primitive object: treat as expandable
+                    if not isinstance(x, (str, int, float, bool)):
+                        return True
+
+                # all elements are primitive scalars -> not expandable
+                return False
+            except Exception:
+                return False
+
+        return False
 
     def display_data(self, max_items=10, max_depth=3):
         """Display the loaded data in tree widget"""
@@ -424,7 +461,8 @@ class PKLVisualizer(QMainWindow):
                                         [key_str, value_type, shape_info])
 
             # Add placeholder for nested structures
-            if (isinstance(value, (dict, list, tuple, set)) and current_depth < max_depth):
+            # Add placeholder for nested structures (skip simple lists of scalars)
+            if self.is_expandable(value) and current_depth < max_depth:
                 QTreeWidgetItem(child_item, ['Loading...', '', ''])
 
         # Show message if there are more items
@@ -448,7 +486,8 @@ class PKLVisualizer(QMainWindow):
                                         [f'[{i}]', value_type, shape_info])
 
             # Add placeholder for nested structures
-            if (isinstance(value, (dict, list, tuple, set)) and current_depth < max_depth):
+            # Add placeholder for nested structures (skip simple lists of scalars)
+            if self.is_expandable(value) and current_depth < max_depth:
                 QTreeWidgetItem(child_item, ['Loading...', '', ''])
 
         # Show message if there are more items
@@ -619,3 +658,5 @@ def main():
 
     sys.exit(app.exec_())
 
+if __name__ == '__main__':
+    main()
