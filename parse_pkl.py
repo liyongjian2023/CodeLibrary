@@ -1,3 +1,7 @@
+"""
+ Function: Parse .pkl file, output .json file.
+ Usage: python parse_pkl.py
+"""
 import sys
 import os
 import pickle
